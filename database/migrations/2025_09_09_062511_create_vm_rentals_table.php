@@ -21,7 +21,10 @@ return new class extends Migration {
             $table->integer('storage')->comment('Storage in GB');
             $table->decimal('total_cost', 10, 2)->default(0);
             $table->enum('status', ['pending', 'active', 'completed', 'cancelled'])->default('pending');
+            $table->boolean('reset_requested')->default(false);
+            $table->timestamp('reset_requested_at')->nullable();
             $table->text('purpose')->nullable();
+            $table->string('operating_system')->nullable();
             $table->json('access_credentials')->nullable();
             $table->timestamps();
         });

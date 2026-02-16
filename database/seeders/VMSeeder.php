@@ -43,14 +43,6 @@ class VMSeeder extends Seeder
             ]);
         }
 
-        // Get a user to assign to VMs (admin user)
-        $adminUser = \App\Models\User::where('role', 'admin')->first();
-        if (!$adminUser) {
-            $this->command->error('No admin user found! Please create an admin user first.');
-            return;
-        }
-
-
         // Buat VM demo
         $vms = [
             [
@@ -63,8 +55,7 @@ class VMSeeder extends Seeder
                 'ip_address' => '192.168.1.10',
                 'storage' => 50,
                 'status' => 'available',
-                'description' => 'VM untuk web server',
-                'user_id' => $adminUser->id
+                'description' => 'VM untuk web server'
             ],
             [
                 'name' => 'VM-DB-01',
@@ -76,8 +67,7 @@ class VMSeeder extends Seeder
                 'ip_address' => '192.168.1.11',
                 'storage' => 100,
                 'status' => 'available',
-                'description' => 'VM untuk database server',
-                'user_id' => $adminUser->id
+                'description' => 'VM untuk database server'
             ],
             [
                 'name' => 'VM-APP-01',
@@ -89,8 +79,7 @@ class VMSeeder extends Seeder
                 'ip_address' => '192.168.1.12',
                 'storage' => 80,
                 'status' => 'available',
-                'description' => 'VM untuk application server',
-                'user_id' => $adminUser->id
+                'description' => 'VM untuk application server'
             ],
             [
                 'name' => 'VM-Cache-01',
@@ -102,8 +91,7 @@ class VMSeeder extends Seeder
                 'ip_address' => '192.168.1.13',
                 'storage' => 20,
                 'status' => 'available',
-                'description' => 'VM untuk caching (Redis/Memcached)',
-                'user_id' => $adminUser->id
+                'description' => 'VM untuk caching (Redis/Memcached)'
             ],
             [
                 'name' => 'VM-Dev-01',
@@ -115,8 +103,7 @@ class VMSeeder extends Seeder
                 'ip_address' => '192.168.1.14',
                 'storage' => 60,
                 'status' => 'available',
-                'description' => 'VM untuk development environment',
-                'user_id' => $adminUser->id
+                'description' => 'VM untuk development environment'
             ],
         ];
 

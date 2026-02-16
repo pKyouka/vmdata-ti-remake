@@ -5,23 +5,13 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('vm_rentals', function (Blueprint $table) {
-            $table->string('operating_system')->nullable()->after('purpose');
-        });
+        // Consolidated into 2025_09_09_062511_create_vm_rentals_table.php
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('vm_rentals', function (Blueprint $table) {
-            $table->dropColumn('operating_system');
-        });
+        // Consolidated into 2025_09_09_062511_create_vm_rentals_table.php
     }
 };

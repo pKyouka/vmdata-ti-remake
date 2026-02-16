@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             RentalSeeder::class,
             SettingSeeder::class,
             UserSeeder::class,
-            // VMSeeder::class,
+            VMSeeder::class,
             // RentalSeeder
         ]);
     }
