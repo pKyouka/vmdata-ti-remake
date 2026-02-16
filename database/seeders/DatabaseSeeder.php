@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run()
     {
+        require_once __DIR__ . '/Serverseeder.php';
         $this->call([
             CategorySeeder::class,
             VMSpecificationSeeder::class,
