@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-sans antialiased text-gray-800 bg-gray-50;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+}
+
+@layer components {
+    .glass {
+        @apply bg-white bg-opacity-90 backdrop-blur-lg border border-white/20 shadow-xl;
+    }
+    
+    .card-hover {
+        @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #003366 0%, #001a33 100%);
+        @apply px-4 py-2 text-white rounded-lg shadow-md hover:shadow-lg transform transition hover:-translate-y-0.5;
+    }
+
+    .btn-psti-gold {
+        background: #FFC107;
+        color: #003366;
+        @apply px-4 py-2 rounded-lg shadow-md hover:shadow-lg transform transition hover:-translate-y-0.5 font-semibold;
+    }
+
+    .btn-psti-gold:hover {
+        background: #FFD700;
+    }
+}
+
+/* PSTI Theme Colors */
+:root {
+    --psti-navy: #003366;
+    --psti-navy-dark: #001a33;
+    --psti-gold: #FFC107;
+    --psti-gold-light: #FFD700;
+}
+
+.sidebar-gradient {
+    background: linear-gradient(135deg, #003366 0%, #001a33 100%);
+}
+
+.nav-link-custom {
+    @apply flex items-center px-4 py-3 text-gray-300 transition-colors duration-200 rounded-lg hover:bg-white/10 hover:text-white;
+}
+
+.nav-link-custom.active {
+    background: #FFC107;
+    color: #003366;
+    @apply shadow-md font-semibold;
+}
+
+.bg-psti-navy {
+    background-color: #003366;
+}
+
+.bg-psti-gold {
+    background-color: #FFC107;
+}
+
+.text-psti-navy {
+    color: #003366;
+}
+
+.text-psti-gold {
+    color: #FFC107;
+}
+
+.border-psti-gold {
+    border-color: #FFC107;
+}
+
+.gradient-psti {
+    background: linear-gradient(135deg, #003366 0%, #001a33 100%);
+}

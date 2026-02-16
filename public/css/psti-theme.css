@@ -1,0 +1,412 @@
+/* ========================================
+   PSTI UNISA THEME - GLOBAL STYLES
+   ======================================== */
+
+/* PSTI Color Variables */
+:root {
+    --psti-navy: #003366;
+    --psti-navy-dark: #001a33;
+    --psti-navy-light: #004d99;
+    --psti-gold: #FFC107;
+    --psti-gold-light: #FFD700;
+    --psti-gold-dark: #FFA000;
+}
+
+/* Gradient Backgrounds */
+.gradient-psti {
+    background: linear-gradient(135deg, var(--psti-navy) 0%, var(--psti-navy-dark) 100%);
+}
+
+.gradient-psti-reverse {
+    background: linear-gradient(135deg, var(--psti-navy-dark) 0%, var(--psti-navy) 100%);
+}
+
+.gradient-psti-gold {
+    background: linear-gradient(135deg, var(--psti-gold) 0%, var(--psti-gold-light) 100%);
+}
+
+/* Background Colors */
+.bg-psti-navy {
+    background-color: var(--psti-navy) !important;
+}
+
+.bg-psti-navy-dark {
+    background-color: var(--psti-navy-dark) !important;
+}
+
+.bg-psti-gold {
+    background-color: var(--psti-gold) !important;
+}
+
+.bg-psti-gold-light {
+    background-color: var(--psti-gold-light) !important;
+}
+
+/* Text Colors */
+.text-psti-navy {
+    color: var(--psti-navy) !important;
+}
+
+.text-psti-gold {
+    color: var(--psti-gold) !important;
+}
+
+/* Border Colors */
+.border-psti-navy {
+    border-color: var(--psti-navy) !important;
+}
+
+.border-psti-gold {
+    border-color: var(--psti-gold) !important;
+}
+
+/* Buttons */
+.btn-psti-navy {
+    background: linear-gradient(135deg, var(--psti-navy) 0%, var(--psti-navy-dark) 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-psti-navy:hover {
+    background: linear-gradient(135deg, var(--psti-navy-dark) 0%, var(--psti-navy) 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 51, 102, 0.3);
+}
+
+.btn-psti-gold {
+    background: var(--psti-gold);
+    color: var(--psti-navy);
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-psti-gold:hover {
+    background: var(--psti-gold-light);
+    color: var(--psti-navy);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+}
+
+.btn-outline-psti-navy {
+    background: transparent;
+    color: var(--psti-navy);
+    border: 2px solid var(--psti-navy);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-psti-navy:hover {
+    background: var(--psti-navy);
+    color: white;
+    border-color: var(--psti-navy);
+}
+
+.btn-outline-psti-gold {
+    background: transparent;
+    color: var(--psti-gold);
+    border: 2px solid var(--psti-gold);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-psti-gold:hover {
+    background: var(--psti-gold);
+    color: var(--psti-navy);
+    border-color: var(--psti-gold);
+}
+
+/* Cards */
+.card-psti {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card-psti:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-header-psti {
+    background: linear-gradient(135deg, var(--psti-navy) 0%, var(--psti-navy-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.card-header-psti-gold {
+    background: linear-gradient(135deg, var(--psti-gold) 0%, var(--psti-gold-light) 100%);
+    color: var(--psti-navy);
+    border: none;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Badges */
+.badge-psti-navy {
+    background-color: var(--psti-navy);
+    color: white;
+}
+
+.badge-psti-gold {
+    background-color: var(--psti-gold);
+    color: var(--psti-navy);
+}
+
+/* Alerts */
+.alert-psti-navy {
+    background-color: rgba(0, 51, 102, 0.1);
+    border-left: 4px solid var(--psti-navy);
+    color: var(--psti-navy);
+}
+
+.alert-psti-gold {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 4px solid var(--psti-gold);
+    color: var(--psti-navy);
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: var(--psti-gold);
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.form-select:focus {
+    border-color: var(--psti-gold);
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--psti-navy);
+    border-color: var(--psti-navy);
+}
+
+/* Links */
+a.link-psti-navy {
+    color: var(--psti-navy);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a.link-psti-navy:hover {
+    color: var(--psti-navy-dark);
+    text-decoration: underline;
+}
+
+a.link-psti-gold {
+    color: var(--psti-gold);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a.link-psti-gold:hover {
+    color: var(--psti-gold-dark);
+    text-decoration: underline;
+}
+
+/* Tables */
+.table-psti thead {
+    background: linear-gradient(135deg, var(--psti-navy) 0%, var(--psti-navy-dark) 100%);
+    color: white;
+}
+
+.table-psti tbody tr:hover {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+/* Pagination */
+.pagination .page-item.active .page-link {
+    background-color: var(--psti-navy);
+    border-color: var(--psti-navy);
+}
+
+.pagination .page-link {
+    color: var(--psti-navy);
+}
+
+.pagination .page-link:hover {
+    color: var(--psti-gold);
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+/* Sidebar */
+.sidebar-psti {
+    background: linear-gradient(135deg, var(--psti-navy) 0%, var(--psti-navy-dark) 100%);
+}
+
+/* Nav Pills */
+.nav-pills .nav-link.active {
+    background-color: var(--psti-navy);
+}
+
+.nav-pills .nav-link:hover {
+    background-color: rgba(0, 51, 102, 0.1);
+    color: var(--psti-navy);
+}
+
+/* Progress Bar */
+.progress-bar-psti {
+    background-color: var(--psti-navy);
+}
+
+.progress-bar-psti-gold {
+    background-color: var(--psti-gold);
+}
+
+/* Spinners */
+.spinner-border-psti {
+    color: var(--psti-navy);
+}
+
+.spinner-border-psti-gold {
+    color: var(--psti-gold);
+}
+
+/* Tooltips */
+.tooltip-inner {
+    background-color: var(--psti-navy);
+}
+
+.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--psti-navy);
+}
+
+.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--psti-navy);
+}
+
+/* Modals */
+.modal-header-psti {
+    background: linear-gradient(135deg, var(--psti-navy) 0%, var(--psti-navy-dark) 100%);
+    color: white;
+}
+
+/* Dropdowns */
+.dropdown-item:active {
+    background-color: var(--psti-navy);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--psti-navy);
+}
+
+/* Breadcrumb */
+.breadcrumb-item.active {
+    color: var(--psti-navy);
+}
+
+.breadcrumb-item a {
+    color: var(--psti-gold);
+}
+
+/* List Group */
+.list-group-item.active {
+    background-color: var(--psti-navy);
+    border-color: var(--psti-navy);
+}
+
+.list-group-item:hover {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--psti-navy);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--psti-navy-dark);
+}
+
+/* Utility Classes */
+.shadow-psti {
+    box-shadow: 0 4px 15px rgba(0, 51, 102, 0.2) !important;
+}
+
+.shadow-psti-gold {
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2) !important;
+}
+
+.rounded-psti {
+    border-radius: 12px !important;
+}
+
+/* Hover Effects */
+.hover-psti-navy:hover {
+    background-color: var(--psti-navy) !important;
+    color: white !important;
+}
+
+.hover-psti-gold:hover {
+    background-color: var(--psti-gold) !important;
+    color: var(--psti-navy) !important;
+}
+
+/* Text Gradients */
+.text-gradient-psti {
+    background: linear-gradient(135deg, var(--psti-navy) 0%, var(--psti-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Icon Backgrounds */
+.icon-bg-psti {
+    background: linear-gradient(135deg, var(--psti-navy) 0%, var(--psti-navy-dark) 100%);
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-bg-psti-gold {
+    background: var(--psti-gold);
+    color: var(--psti-navy);
+    padding: 12px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Animations */
+@keyframes fadeInPSTI {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-psti {
+    animation: fadeInPSTI 0.6s ease-out;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+    .card-psti {
+        margin-bottom: 1rem;
+    }
+}
