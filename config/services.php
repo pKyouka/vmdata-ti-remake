@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'proxmox' => [
+        'host' => env('PROXMOX_HOST'),
+        'username' => env('PROXMOX_USERNAME'),
+        'password' => env('PROXMOX_PASSWORD'),
+        'realm' => env('PROXMOX_REALM', 'pam'),
+        'node' => env('PROXMOX_NODE', 'pve'),
+        'storage' => env('PROXMOX_STORAGE', 'local-lvm'),
+    ],
+
 ];

@@ -85,6 +85,13 @@
         </div>
 
         <!-- Settings -->
+        <a class="nav-link-custom {{ request()->routeIs('admin.proxmox.*') ? 'active' : '' }}"
+            href="{{ route('admin.proxmox.index') }}">
+            <i class="fas fa-network-wired w-6"></i>
+            <span class="font-medium">Integration</span>
+        </a>
+
+        <!-- Settings -->
         <a class="nav-link-custom {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}"
             href="{{ route('admin.settings.index') }}">
             <i class="fas fa-cog w-6"></i>

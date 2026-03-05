@@ -37,6 +37,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/settings/{setting}', [\App\Http\Controllers\Admin\SettingController::class, 'update'])
         ->name('admin.settings.update');
 
+    // Proxmox & Ansible Integration
+    Route::get('/admin/proxmox', [\App\Http\Controllers\Admin\ProxmoxController::class, 'index'])
+        ->name('admin.proxmox.index');
+    Route::get('/admin/proxmox/check', [\App\Http\Controllers\Admin\ProxmoxController::class, 'checkConnection'])
+        ->name('admin.proxmox.check');
+
     // Admin Reports
     Route::get('/admin/reports', function () {
         return view('admin.reports.index');
