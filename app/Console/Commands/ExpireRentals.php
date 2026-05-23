@@ -29,35 +29,28 @@ class ExpireRentals extends Command
     {
         $dry = $this->option('dry-run');
         $now = Carbon::now();
+        $today = $now->startOfDay();
 
-        // Expire vm_rentals where end_time < now() and status not already expired/completed/cancelled
-        $vmWhere = "`end_time` < ? AND `status` NOT IN ('expired','completed','cancelled')";
-        $vmCount = DB::table('vm_rentals')->whereRaw($vmWhere, [$now->toDateTimeString()])->count();
+        // Expire rentals where end_date < today() and status not already expired/cancelled
+        // Since all rental types are consolidated into `rentals` table
+        $where = "`end_date` < ? AND `status` NOT IN ('expired', 'cancelled')";
+        $count = DB::table('rentals')->whereRaw($where, [$today->toDateString()])->count();
 
-        $this->info("VM rentals to expire: {$vmCount}");
+        $this->info("Rentals to expire: {$count}");
 
-        if (! $dry && $vmCount > 0) {
-            DB::table('vm_rentals')
-                ->whereRaw($vmWhere, [$now->toDateTimeString()])
-                ->update(['status' => 'expired', 'updated_at' => $now->toDateTimeString()]);
+        if (!$dry && $count > 0) {
+            // Use transaction to prevent race condition
+            DB::transaction(function () use ($now, $today) {
+                DB::table('rentals')
+                    ->whereRaw("`end_date` < ? AND `status` NOT IN ('expired', 'cancelled')", [$today->toDateString()])
+                    ->update(['status' => 'expired', 'updated_at' => $now->toDateTimeString()]);
+            });
 
-            $this->info("Expired {$vmCount} vm_rentals.");
-        }
-
-        // Expire rentals table where end_date < today() and status not already expired
-        $rWhere = "`end_date` < ? AND `status` NOT IN ('expired')";
-        $rCount = DB::table('rentals')->whereRaw($rWhere, [$now->toDateString()])->count();
-        $this->info("Rentals to expire: {$rCount}");
-
-        if (! $dry && $rCount > 0) {
-            DB::table('rentals')
-                ->whereRaw($rWhere, [$now->toDateString()])
-                ->update(['status' => 'expired', 'updated_at' => $now->toDateTimeString()]);
-
-            $this->info("Expired {$rCount} rentals.");
+            $this->info("Expired {$count} rentals.");
         }
 
         $this->info('Done.');
         return 0;
     }
 }
+

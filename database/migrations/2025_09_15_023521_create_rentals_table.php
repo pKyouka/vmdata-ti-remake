@@ -17,10 +17,11 @@ return new class extends Migration {
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['pending', 'active', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'active', 'completed', 'cancelled', 'expired', 'inactive'])->default('pending');
             $table->string('vm_username')->nullable();
             $table->string('vm_password')->nullable();
             $table->string('vm_ip_address')->nullable();
+            $table->decimal('total_cost', 10, 2)->default(0)->nullable();
             $table->timestamps();
         });
     }

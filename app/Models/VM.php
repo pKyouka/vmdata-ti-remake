@@ -55,6 +55,14 @@ class VM extends Model
     }
 
     /**
+     * Get all VM rentals for this VM
+     */
+    public function vmRentals()
+    {
+        return $this->hasMany(VMRental::class, 'vm_id');
+    }
+
+    /**
      * Get the current active rental for this VM
      */
     public function currentRental()
@@ -80,6 +88,7 @@ class VM extends Model
 
     /**
      * Store the access password encrypted in the database.
+     * Encrypts with current app key.
      */
     public function setAccessPasswordAttribute($value)
     {
@@ -88,22 +97,30 @@ class VM extends Model
             return;
         }
 
-        // encrypt before storing
         $this->attributes['access_password'] = Crypt::encryptString($value);
     }
 
     /**
      * Decrypt the access password when reading.
-     * Returns null when not set or decryption fails.
+     * Returns null if decryption fails (e.g., key rotated).
+     * 
+     * NOTE: After APP_KEY rotation, encrypted passwords can no longer be decrypted.
+     * You should provide a migration to re-encrypt all passwords with the new key,
+     * or store passwords in a separate encrypted vault.
      */
     public function getAccessPasswordAttribute($value)
     {
-        if (empty($value))
+        if (empty($value)) {
             return null;
+        }
 
         try {
             return Crypt::decryptString($value);
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            \Illuminate\Support\Facades\Log::error('VM password decryption failed', [
+                'vm_id' => $this->id ?? 'unknown',
+                'reason' => 'Encryption key may have been rotated',
+            ]);
             return null;
         }
     }

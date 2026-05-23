@@ -44,4 +44,9 @@ return [
         'storage' => env('PROXMOX_STORAGE', 'local-lvm'),
     ],
 
+    'ansible' => [
+        'playbook_path' => env('ANSIBLE_PLAYBOOK_PATH', 'ansible/playbooks'),
+        'inventory_path' => env('ANSIBLE_INVENTORY_PATH', 'ansible/hosts'),
+    ],
+
 ];

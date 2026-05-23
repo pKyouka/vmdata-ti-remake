@@ -126,18 +126,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 // ROUTE USER (accessible by admin and user)
 Route::middleware(['auth', 'role:admin,user'])->group(function () {
-    // User hanya bisa kelola VM sendiri
-    Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+    // User dashboard
+    Route::get('/user/dashboard', [DashboardController::class, 'user'])
+        ->name('user.dashboard');
     Route::get('/user/profile', [UserController::class, 'profile'])->name('user.profile');
     // Ensure named index route exists (some callers expect route('vms.index'))
     Route::get('/vms', [VMController::class, 'index'])->name('vms.index');
     // Ensure named create route exists for forms/links
     Route::get('/vms/create', [VMController::class, 'create'])->name('vms.create');
     Route::resource('vms', VMController::class);
-
-    // User dashboard
-    Route::get('/user/dashboard', [DashboardController::class, 'user'])
-        ->name('user.dashboard');
 });
 
 
@@ -148,11 +145,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.avatar');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Test route - tambahkan di bagian bawah
-    Route::get('/test-role', function () {
-        return 'Role middleware working! User: ' . auth()->user()->name . ', Role: ' . auth()->user()->role;
-    })->middleware(['auth', 'role:user']);
 
     Route::post('/vmrentals/{id}/request-reset', [VMRentalController::class, 'requestReset'])->name('vmrentals.requestReset');
     Route::resource('vmrentals', VMRentalController::class);

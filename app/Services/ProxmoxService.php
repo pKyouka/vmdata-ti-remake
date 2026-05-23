@@ -14,6 +14,7 @@ class ProxmoxService
     protected $node;
     protected $ticket;
     protected $csrfToken;
+    protected $ticketExpiry;
 
     public function __construct()
     {
@@ -22,24 +23,60 @@ class ProxmoxService
         $this->password = config('services.proxmox.password');
         $this->realm = config('services.proxmox.realm');
         $this->node = config('services.proxmox.node');
+        $this->ticketExpiry = 0;
+
+        // Validate required configuration
+        if (!$this->host || !$this->username || !$this->password || !$this->realm || !$this->node) {
+            throw new \RuntimeException(
+                'Proxmox configuration incomplete. Ensure PROXMOX_HOST, PROXMOX_USERNAME, '
+                . 'PROXMOX_PASSWORD, PROXMOX_REALM, and PROXMOX_NODE are set in .env'
+            );
+        }
+    }
+
+    /**
+     * Get cached ticket if still valid, otherwise authenticate
+     */
+    private function getTicket()
+    {
+        if ($this->ticket && time() < $this->ticketExpiry) {
+            return $this->ticket;
+        }
+        
+        if ($this->authenticate()) {
+            return $this->ticket;
+        }
+        
+        return null;
     }
 
     public function authenticate()
     {
         try {
-            $response = Http::withoutVerifying()->post("{$this->host}/api2/json/access/ticket", [
-                'username' => "{$this->username}@{$this->realm}",
-                'password' => $this->password,
-            ]);
+            $response = Http::timeout(5)
+                ->retry(2, 100)
+                ->post("{$this->host}/api2/json/access/ticket", [
+                    'username' => "{$this->username}@{$this->realm}",
+                    'password' => $this->password,
+                ]);
 
             if ($response->successful()) {
                 $data = $response->json()['data'];
                 $this->ticket = $data['ticket'];
                 $this->csrfToken = $data['CSRFPreventionToken'];
+                // Proxmox tickets expire after 2 hours; cache for 90 minutes
+                $this->ticketExpiry = time() + (90 * 60);
+                
+                // Clear plaintext password after authentication
+                $this->password = null;
+                
                 return true;
             }
 
-            Log::error('Proxmox Authentication Failed', ['response' => $response->body()]);
+            Log::error('Proxmox Authentication Failed', [
+                'status' => $response->status(),
+                'host' => $this->host,
+            ]);
             return false;
         } catch (\Exception $e) {
             Log::error('Proxmox Connection Error', ['error' => $e->getMessage()]);
@@ -54,35 +91,57 @@ class ProxmoxService
 
     public function getNodeStatus()
     {
-        if (!$this->authenticate()) {
+        $ticket = $this->getTicket();
+        if (!$ticket) {
+            Log::warning('Proxmox: Unable to obtain valid ticket');
             return null;
         }
 
-        $response = Http::withoutVerifying()
-            ->withHeaders(['Cookie' => "PVEAuthCookie={$this->ticket}"])
-            ->get("{$this->host}/api2/json/nodes/{$this->node}/status");
+        try {
+            $response = Http::timeout(5)
+                ->retry(2, 100)
+                ->withHeaders(['Cookie' => "PVEAuthCookie={$ticket}"])
+                ->get("{$this->host}/api2/json/nodes/{$this->node}/status");
 
-        if ($response->successful()) {
-            return $response->json()['data'];
+            if ($response->successful()) {
+                return $response->json()['data'] ?? null;
+            }
+
+            Log::error('Proxmox getNodeStatus failed', [
+                'status' => $response->status(),
+                'node' => $this->node,
+            ]);
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Proxmox API error', ['error' => $e->getMessage()]);
+            return null;
         }
-
-        return null;
     }
 
-    // Get console for the NODE itself
+    /**
+     * Get console URL for the node
+     * Note: This returns link to Proxmox web UI console, not an embedded terminal
+     */
     public function getNodeConsoleUrl()
     {
-        // PVE uses xterm.js implementation.
-        // We can redirect user to the PVE web interface console if appropriate
-        // Or generate a VNC/xterm console URL.
-        // simpler approach: Return link to proxmox shell in PVE UI for now,
-        // or just verify we CAN get a console token (integrating xterm.js in this app is complex).
+        if (!$this->host || !$this->node) {
+            return null;
+        }
 
-        // However, user said "enter the terminal".
-        // Let's at least provide a direct link to the node shell if possible or just show status.
-        // Opening a terminal usually requires a WebSocket connection which might be advanced.
-        // For now, let's just return the check result.
+        // Validate host is a valid URL/domain
+        if (filter_var($this->host, FILTER_VALIDATE_URL) === false) {
+            Log::warning('Proxmox host is not a valid URL', ['host' => $this->host]);
+            return null;
+        }
 
         return "{$this->host}/?console=shell&node={$this->node}&vmid=0";
+    }
+
+    public function __destruct()
+    {
+        // Clear sensitive data when object destroyed
+        $this->password = null;
+        $this->ticket = null;
+        $this->csrfToken = null;
     }
 }

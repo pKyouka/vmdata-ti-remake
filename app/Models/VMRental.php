@@ -3,12 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class VMRental extends Model
+class VMRental extends Rental
 {
     use HasFactory;
-    protected $table = 'vm_rentals';
+    
+    protected $table = 'rentals';
+    
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // Auto-set rental_type when creating VMRental
+        static::creating(function ($model) {
+            $model->rental_type = 'vm_rental';
+        });
+    }
+    
+    protected static function newBaseQuery()
+    {
+        return parent::newBaseQuery()->where('rental_type', 'vm_rental');
+    }
+    
     protected $fillable = [
         'user_id',
         'vm_id',
@@ -26,26 +42,11 @@ class VMRental extends Model
         'reset_requested_at'
     ];
 
-    protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
-        'access_credentials' => 'array',
-        'reset_requested' => 'boolean',
-        'reset_requested_at' => 'datetime',
-    ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function vm()
-    {
-        return $this->belongsTo(VM::class);
-    }
-
     public function getDurationInHours()
     {
+        if (!$this->start_time || !$this->end_time) {
+            return 0;
+        }
         return $this->start_time->diffInHours($this->end_time);
     }
 
@@ -53,7 +54,7 @@ class VMRental extends Model
     {
         $hours = $this->getDurationInHours();
         if (!$this->vm || !$this->vm->specification) {
-            return 0; // Or calculate based on manual specs if logic exists
+            return 0;
         }
         $pricePerHour = $this->vm->specification->price_per_hour;
         return $hours * $pricePerHour;

@@ -13,54 +13,68 @@ class RentalController extends Controller
 {
     public function index()
     {
+        // Only admins can view all rentals
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized: Only admins can access this page');
+        }
+
         $rentals = Rental::with(['user', 'vm', 'admin'])->paginate(10);
 
-        // If admin, also include pending VM rental requests so admin can respond
-        $pendingVmrentals = [];
-        $vmrentals = collect();
-        if (auth()->check() && auth()->user()->role === 'admin') {
-            $pendingVmrentals = \App\Models\VMRental::with(['user', 'vm'])->where('status', 'pending')->latest()->get();
-            // Also fetch processed VM rentals (non-pending) so we can show users who rented VMs
-            $vmrentals = \App\Models\VMRental::with(['user', 'vm'])->where('status', '!=', 'pending')->latest()->get();
-        }
+        // Combine all VM rentals into one query, then filter in-memory to avoid N+1
+        $allVmRentals = \App\Models\VMRental::with(['user', 'vm'])->latest()->get();
+        $pendingVmrentals = $allVmRentals->where('status', 'pending');
+        $vmrentals = $allVmRentals->whereNotIn('status', ['pending']);
 
         return view('rentals.index', compact('rentals', 'pendingVmrentals', 'vmrentals'));
     }
 
     public function create()
     {
-        // Get all users (except admins)
-        $users = User::where('role', 'user')->get();
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Only admins can create rentals');
+        }
 
-        // Get all VMs
+        // Cache admin/user lists for 1 hour
+        $users = cache()->remember('users_non_admin', 3600, fn() =>
+            User::where('role', 'user')->get()
+        );
+
         $vms = Vm::all();
 
-        // Get all admins
-        $admins = User::where('role', 'admin')->get();
+        $admins = cache()->remember('users_admin', 3600, fn() =>
+            User::where('role', 'admin')->get()
+        );
 
         return view('rentals.create', compact('users', 'vms', 'admins'));
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Only admins can create rentals');
+        }
+
         $request->validate([
-            'user_id' => 'required',
-            'vm_id' => 'required',
+            'user_id' => 'required|exists:users,id',
+            'vm_id' => 'required|exists:vms,id',
             'start_date' => 'required|string',
             'end_date' => 'required|string',
-            'status' => 'required',
-            'admin_id' => 'required',
+            'status' => 'required|in:pending,active,expired,cancelled',
+            'admin_id' => 'required|exists:users,id',
             'vm_username' => 'nullable|string|max:255',
             'vm_password' => 'nullable|string|max:255',
-            'vm_ip_address' => 'nullable|string|max:255',
+            'vm_ip_address' => 'nullable|ipv4|ipv6',
         ]);
 
         $data = $request->all();
 
         // Parse DD/MM/YYYY to Y-m-d format for database
         try {
-            $data['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
-            $data['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
+            $startDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date);
+            $endDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date);
+
+            $data['start_date'] = $startDate->format('Y-m-d');
+            $data['end_date'] = $endDate->format('Y-m-d');
         } catch (\Exception $e) {
             return back()->withErrors(['date' => 'Format tanggal tidak valid. Gunakan format DD/MM/YYYY'])->withInput();
         }
@@ -72,6 +86,10 @@ class RentalController extends Controller
 
         Rental::create($data);
 
+        // Clear cache since new rental added
+        cache()->forget('users_non_admin');
+        cache()->forget('users_admin');
+
         return redirect()->route('rentals.index')->with('success', 'Rental berhasil ditambahkan.');
     }
 
@@ -82,14 +100,19 @@ class RentalController extends Controller
 
     public function edit(Rental $rental)
     {
-        // Get all users (except admins)
-        $users = User::where('role', 'user')->get();
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Only admins can edit rentals');
+        }
 
-        // Get all VMs
+        $users = cache()->remember('users_non_admin', 3600, fn() =>
+            User::where('role', 'user')->get()
+        );
+
         $vms = Vm::all();
 
-        // Get all admins
-        $admins = User::where('role', 'admin')->get();
+        $admins = cache()->remember('users_admin', 3600, fn() =>
+            User::where('role', 'admin')->get()
+        );
 
         // Format dates to DD/MM/YYYY for display
         $rental->start_date_formatted = $rental->start_date ? $rental->start_date->format('d/m/Y') : '';
@@ -100,22 +123,31 @@ class RentalController extends Controller
 
     public function update(Request $request, Rental $rental)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Only admins can update rentals');
+        }
+
         $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'vm_id' => 'required|exists:vms,id',
             'start_date' => 'required|string',
             'end_date' => 'required|string',
-            'status' => 'required',
-            'admin_id' => 'required',
+            'status' => 'required|in:pending,active,expired,cancelled',
+            'admin_id' => 'required|exists:users,id',
             'vm_username' => 'nullable|string|max:255',
             'vm_password' => 'nullable|string|max:255',
-            'vm_ip_address' => 'nullable|string|max:255',
+            'vm_ip_address' => 'nullable|ipv4|ipv6',
         ]);
 
         $data = $request->all();
 
         // Parse DD/MM/YYYY to Y-m-d format for database
         try {
-            $data['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
-            $data['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
+            $startDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date);
+            $endDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date);
+
+            $data['start_date'] = $startDate->format('Y-m-d');
+            $data['end_date'] = $endDate->format('Y-m-d');
         } catch (\Exception $e) {
             return back()->withErrors(['date' => 'Format tanggal tidak valid. Gunakan format DD/MM/YYYY'])->withInput();
         }
@@ -125,34 +157,26 @@ class RentalController extends Controller
             return back()->withErrors(['end_date' => 'Tanggal selesai harus lebih besar atau sama dengan tanggal mulai'])->withInput();
         }
 
-        // Recalculate status based on edited dates when admin updates
-        try {
-            $start = \Carbon\Carbon::parse($data['start_date']);
-            $end = \Carbon\Carbon::parse($data['end_date']);
-            $now = \Carbon\Carbon::now();
-
-            if ($end->lessThan($now->startOfDay())) {
-                // already past -> expired
-                $data['status'] = 'expired';
-            } elseif ($start->greaterThan($now)) {
-                // start is in future -> pending/scheduled
-                $data['status'] = 'pending';
-            } else {
-                // between start and end -> active
-                $data['status'] = 'active';
-            }
-        } catch (\Exception $e) {
-            // If parsing fails, fall back to provided status
-        }
-
         $rental->update($data);
+
+        // Clear cache
+        cache()->forget('users_non_admin');
+        cache()->forget('users_admin');
 
         return redirect()->route('rentals.index')->with('success', 'Rental berhasil diperbarui.');
     }
 
     public function destroy(Rental $rental)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Only admins can delete rentals');
+        }
+
         $rental->delete();
+
+        cache()->forget('users_non_admin');
+        cache()->forget('users_admin');
+
         return redirect()->route('rentals.index')->with('success', 'Rental berhasil dihapus.');
     }
 
